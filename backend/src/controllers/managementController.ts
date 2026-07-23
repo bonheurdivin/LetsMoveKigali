@@ -114,10 +114,17 @@ export const createStop = async (req: Request, res: Response) => {
   try {
     const { name, latitude, longitude, order, routeId } = req.body;
     const stop = await prisma.stop.create({
-      data: { name, latitude, longitude, order, routeId },
+      data: {
+        name,
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude),
+        order: parseInt(order, 10),
+        routeId,
+      },
     });
     res.status(201).json(stop);
   } catch (error) {
+    console.error("Create stop error:", error);
     res.status(500).json({ error: "Failed to create stop." });
   }
 };
