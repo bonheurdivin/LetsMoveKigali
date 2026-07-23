@@ -255,3 +255,47 @@ export const deleteNotification = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to delete notification." });
   }
 };
+
+// ===== FAVORITES =====
+
+import { AuthRequest } from "../middlewares/authMiddleware";
+
+export const getMyFavorites = async (req: AuthRequest, res: Response) => {
+  try {
+    const favorites = await prisma.favoriteRoute.findMany({
+      where: { userId: req.userId },
+      include: { route: true },
+    });
+    res.json(favorites);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch favorites." });
+  }
+};
+
+export const addFavorite = async (req: AuthRequest, res: Response) => {
+  try {
+    const { routeId } = req.body;
+    const favorite = await prisma.favoriteRoute.create({
+      data: { userId: req.userId as string, routeId },
+      include: { route: true },
+    });
+    res.status(201).json(favorite);
+  } catch (error: any) {
+    if (error.code === "P2002") {
+      return res.status(409).json({ error: "Already in favorites." });
+    }
+    res.status(500).json({ error: "Failed to add favorite." });
+  }
+};
+
+export const removeFavorite = async (req: AuthRequest, res: Response) => {
+  try {
+    const routeId = req.params.routeId as string;
+    await prisma.favoriteRoute.deleteMany({
+      where: { userId: req.userId, routeId },
+    });
+    res.json({ message: "Removed from favorites." });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to remove favorite." });
+  }
+};

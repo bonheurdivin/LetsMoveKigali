@@ -6,6 +6,7 @@ import {
   createStop, getStopsByRoute, deleteStop,
   getDrivers, createDriver, deleteDriver, updateDriver,
   createNotification, getNotifications, deleteNotification,
+  getMyFavorites, addFavorite, removeFavorite,
 } from "../controllers/managementController";
 
 const router = Router();
@@ -37,4 +38,9 @@ router.put("/drivers/:id", authenticate, authorize("ADMIN"), updateDriver);
 router.post("/notifications", authenticate, authorize("ADMIN"), createNotification);
 router.get("/notifications", authenticate, getNotifications);
 router.delete("/notifications/:id", authenticate, authorize("ADMIN"), deleteNotification);
+
+// Favorites
+router.get("/favorites", authenticate, getMyFavorites);
+router.post("/favorites", authenticate, addFavorite);
+router.delete("/favorites/:routeId", authenticate, removeFavorite);
 export default router;

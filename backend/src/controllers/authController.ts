@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import prisma from "../config/prisma";
+import { AuthRequest } from "../middlewares/authMiddleware";
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
@@ -85,5 +86,41 @@ export const login = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Login error:", error);
     return res.status(500).json({ error: "Something went wrong during login." });
+  }
+};
+
+// UPDATE MY PROFILE (fullName, phone)
+export const updateMe = async (req: AuthRequest, res: Response) => {
+  try {
+    const { fullName, phone } = req.body;
+    const user = await prisma.user.update({
+      where: { id: req.userId },
+      data: { fullName, phone },
+    });
+    res.json({
+      id: user.id, fullName: user.fullName, email: user.email, phone: user.phone, role: user.role,
+    });
+  } catch (error) {
+    console.error("Update profile error:", error);
+    res.status(500).json({ error: "Failed to update profile." });
+  }
+};
+
+// CHANGE MY PASSWORD
+export const changePassword = async (req: AuthRequest, res: Response) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = await prisma.user.findUnique({ where: { id: req.userId } });
+    if (!user) return res.status(404).json({ error: "User not found." });
+
+    const isValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isValid) return res.status(401).json({ error: "Current password is incorrect." });
+
+    const hashed = await bcrypt.hash(newPassword, 10);
+    await prisma.user.update({ where: { id: req.userId }, data: { password: hashed } });
+    res.json({ message: "Password updated successfully." });
+  } catch (error) {
+    console.error("Change password error:", error);
+    res.status(500).json({ error: "Failed to change password." });
   }
 };
