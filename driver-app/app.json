@@ -21,10 +21,16 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.bonheurdivin.driverapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "92c61ac5-cfd4-4187-aa35-362c3f12d236"
+      }
     }
   }
 }

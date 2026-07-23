@@ -50,7 +50,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full border border-gray-300 rounded-lg p-2.5 mt-1 focus:outline-none focus:ring-2 focus:ring-green-600"
-              placeholder="admin@letsmove.rw"
+              placeholder="Please enter your email"
             />
           </div>
           <div>

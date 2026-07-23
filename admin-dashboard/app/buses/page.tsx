@@ -10,6 +10,8 @@ export default function BusesPage() {
   const [routes, setRoutes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [viewingBus, setViewingBus] = useState<any>(null);
   const [form, setForm] = useState({ busNumber: "", plateNumber: "", fuelType: "Diesel", routeId: "" });
   const [token, setToken] = useState("");
 
@@ -39,19 +41,41 @@ export default function BusesPage() {
     }
   };
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const resetForm = () => {
+    setForm({ busNumber: "", plateNumber: "", fuelType: "Diesel", routeId: "" });
+    setEditingId(null);
+    setShowForm(false);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.post("/api/buses", form, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setForm({ busNumber: "", plateNumber: "", fuelType: "Diesel", routeId: "" });
-      setShowForm(false);
+      if (editingId) {
+        await api.put(`/api/buses/${editingId}`, form, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } else {
+        await api.post("/api/buses", form, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+      resetForm();
       fetchData(token);
     } catch (error) {
-      console.error("Failed to create bus:", error);
-      alert("Failed to create bus.");
+      console.error("Failed to save bus:", error);
+      alert("Failed to save bus.");
     }
+  };
+
+  const handleEdit = (bus: any) => {
+    setForm({
+      busNumber: bus.busNumber,
+      plateNumber: bus.plateNumber,
+      fuelType: bus.fuelType,
+      routeId: bus.routeId || "",
+    });
+    setEditingId(bus.id);
+    setShowForm(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -66,6 +90,26 @@ export default function BusesPage() {
     }
   };
 
+  const handleStatusChange = async (bus: any, newStatus: string) => {
+    try {
+      await api.put(
+        `/api/buses/${bus.id}`,
+        { status: newStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      fetchData(token);
+    } catch (error) {
+      console.error("Failed to update bus status:", error);
+      alert("Failed to update status.");
+    }
+  };
+
+  const statusStyles: Record<string, string> = {
+    ACTIVE: "bg-green-100 text-green-800",
+    MAINTENANCE: "bg-yellow-100 text-yellow-800",
+    INACTIVE: "bg-gray-200 text-gray-600",
+  };
+
   return (
     <div className="p-8">
       <div className="flex justify-between items-center mb-6">
@@ -74,15 +118,15 @@ export default function BusesPage() {
           <p className="text-gray-500">View, add, edit and manage all buses in the system.</p>
         </div>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => (showForm ? resetForm() : setShowForm(true))}
           className="bg-green-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-800"
         >
-          + Add New Bus
+          {showForm ? "Cancel" : "+ Add New Bus"}
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleCreate} className="bg-gray-50 border border-gray-200 rounded-xl p-5 mb-6 grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="bg-gray-50 border border-gray-200 rounded-xl p-5 mb-6 grid grid-cols-2 gap-4">
           <input
             required
             placeholder="Bus Number (e.g. 102)"
@@ -117,9 +161,23 @@ export default function BusesPage() {
             ))}
           </select>
           <button type="submit" className="col-span-2 bg-green-700 text-white rounded-lg py-2 font-medium hover:bg-green-800">
-            Save Bus
+            {editingId ? "Update Bus" : "Save Bus"}
           </button>
         </form>
+      )}
+
+      {viewingBus && (
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 mb-6">
+          <div className="flex justify-between items-start">
+            <h3 className="font-semibold text-lg mb-2">Bus Details</h3>
+            <button onClick={() => setViewingBus(null)} className="text-gray-500 hover:text-gray-700">✕</button>
+          </div>
+          <p><span className="text-gray-500">Bus Number:</span> {viewingBus.busNumber}</p>
+          <p><span className="text-gray-500">Plate Number:</span> {viewingBus.plateNumber}</p>
+          <p><span className="text-gray-500">Fuel Type:</span> {viewingBus.fuelType}</p>
+          <p><span className="text-gray-500">Route:</span> {viewingBus.route?.name || "Unassigned"}</p>
+          <p><span className="text-gray-500">Status:</span> {viewingBus.status}</p>
+        </div>
       )}
 
       {loading ? (
@@ -134,7 +192,7 @@ export default function BusesPage() {
                 <th className="p-3">Fuel Type</th>
                 <th className="p-3">Route</th>
                 <th className="p-3">Status</th>
-                <th className="p-3"></th>
+                <th className="p-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -145,14 +203,20 @@ export default function BusesPage() {
                   <td className="p-3">{bus.fuelType}</td>
                   <td className="p-3">{bus.route?.name || "—"}</td>
                   <td className="p-3">
-                    <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">
-                      {bus.status}
-                    </span>
+                    <select
+                      value={bus.status}
+                      onChange={(e) => handleStatusChange(bus, e.target.value)}
+                      className={`rounded-full text-xs font-medium px-2 py-1 border-0 cursor-pointer ${statusStyles[bus.status]}`}
+                    >
+                      <option value="ACTIVE">Active</option>
+                      <option value="MAINTENANCE">Maintenance</option>
+                      <option value="INACTIVE">Inactive</option>
+                    </select>
                   </td>
-                  <td className="p-3 text-right">
-                    <button onClick={() => handleDelete(bus.id)} className="text-red-600 hover:underline">
-                      Delete
-                    </button>
+                  <td className="p-3 text-right space-x-3">
+                    <button onClick={() => setViewingBus(bus)} className="text-blue-600 hover:underline">View</button>
+                    <button onClick={() => handleEdit(bus)} className="text-green-700 hover:underline">Edit</button>
+                    <button onClick={() => handleDelete(bus.id)} className="text-red-600 hover:underline">Delete</button>
                   </td>
                 </tr>
               ))}

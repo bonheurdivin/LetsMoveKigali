@@ -24,10 +24,10 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-56 min-h-screen bg-white border-r border-gray-200 flex flex-col">
-      <div className="p-5 border-b border-gray-100">
-        <h2 className="font-bold text-green-700">Let'sMove Kigali</h2>
-        <p className="text-xs text-gray-400">Admin Portal</p>
+    <aside className="w-56 min-h-screen bg-green-800 border-r border-green-900 flex flex-col">
+      <div className="p-5 border-b border-green-700">
+        <h2 className="font-bold text-white">Let'sMove Kigali</h2>
+        <p className="text-xs text-green-200">Admin Portal</p>
       </div>
 
       <nav className="flex-1 p-3 space-y-1">
@@ -38,7 +38,7 @@ export default function Sidebar() {
               key={item.href}
               href={item.href}
               className={`block px-3 py-2 rounded-lg text-sm font-medium transition ${
-                active ? "bg-green-700 text-white" : "text-gray-600 hover:bg-gray-100"
+                active ? "bg-white text-green-800" : "text-green-100 hover:bg-green-700"
               }`}
             >
               {item.label}
@@ -47,10 +47,10 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="p-3 border-t border-gray-100">
+      <div className="p-3 border-t border-green-700">
         <button
           onClick={handleLogout}
-          className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50"
+          className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-red-200 hover:bg-red-900/30"
         >
           Log Out
         </button>

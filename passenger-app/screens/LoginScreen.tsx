@@ -65,6 +65,12 @@ export default function LoginScreen({ navigation }: any) {
         <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
           {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Login</Text>}
         </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => navigation.navigate("Signup")} style={{ marginTop: 16 }}>
+          <Text style={{ textAlign: "center", color: "#1B7A3D" }}>
+            Don't have an account? <Text style={{ fontWeight: "700" }}>Sign up</Text>
+          </Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
