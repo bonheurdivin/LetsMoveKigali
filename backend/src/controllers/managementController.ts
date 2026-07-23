@@ -217,3 +217,41 @@ export const updateDriver = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to update driver." });
   }
 };
+
+// ===== NOTIFICATIONS / ALERTS =====
+
+export const createNotification = async (req: Request, res: Response) => {
+  try {
+    const { title, message, type } = req.body;
+    // userId is left null = broadcast to all passengers
+    const notification = await prisma.notification.create({
+      data: { title, message, type: type || "info" },
+    });
+    res.status(201).json(notification);
+  } catch (error) {
+    console.error("Create notification error:", error);
+    res.status(500).json({ error: "Failed to create notification." });
+  }
+};
+
+export const getNotifications = async (req: Request, res: Response) => {
+  try {
+    const notifications = await prisma.notification.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 50,
+    });
+    res.json(notifications);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch notifications." });
+  }
+};
+
+export const deleteNotification = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    await prisma.notification.delete({ where: { id } });
+    res.json({ message: "Notification deleted." });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete notification." });
+  }
+};

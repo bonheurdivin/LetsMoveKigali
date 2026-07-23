@@ -5,6 +5,7 @@ import {
   createRoute, getRoutes, updateRoute, deleteRoute,
   createStop, getStopsByRoute, deleteStop,
   getDrivers, createDriver, deleteDriver, updateDriver,
+  createNotification, getNotifications, deleteNotification,
 } from "../controllers/managementController";
 
 const router = Router();
@@ -32,4 +33,8 @@ router.post("/drivers", authenticate, authorize("ADMIN"), createDriver);
 router.delete("/drivers/:id", authenticate, authorize("ADMIN"), deleteDriver);
 router.put("/drivers/:id", authenticate, authorize("ADMIN"), updateDriver);
 
+// Notifications / Alerts
+router.post("/notifications", authenticate, authorize("ADMIN"), createNotification);
+router.get("/notifications", authenticate, getNotifications);
+router.delete("/notifications/:id", authenticate, authorize("ADMIN"), deleteNotification);
 export default router;
