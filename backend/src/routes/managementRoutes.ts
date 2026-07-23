@@ -4,7 +4,7 @@ import {
   createBus, getBuses, updateBus, deleteBus,
   createRoute, getRoutes, updateRoute, deleteRoute,
   createStop, getStopsByRoute, deleteStop,
-  getDrivers, createDriver, deleteDriver,
+  getDrivers, createDriver, deleteDriver, updateDriver,
 } from "../controllers/managementController";
 
 const router = Router();
@@ -30,5 +30,6 @@ router.delete("/stops/:id", authenticate, authorize("ADMIN"), deleteStop);
 router.get("/drivers", authenticate, authorize("ADMIN"), getDrivers);
 router.post("/drivers", authenticate, authorize("ADMIN"), createDriver);
 router.delete("/drivers/:id", authenticate, authorize("ADMIN"), deleteDriver);
+router.put("/drivers/:id", authenticate, authorize("ADMIN"), updateDriver);
 
 export default router;

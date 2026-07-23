@@ -49,12 +49,30 @@ export const deleteBus = async (req: Request, res: Response) => {
 
 export const createRoute = async (req: Request, res: Response) => {
   try {
-    const { name, startPoint, endPoint } = req.body;
+    const { name, startPoint, endPoint, stops } = req.body;
     const route = await prisma.route.create({
-      data: { name, startPoint, endPoint },
+      data: {
+        name,
+        startPoint,
+        endPoint,
+        ...(stops && stops.length > 0
+          ? {
+              stops: {
+                create: stops.map((s: any, index: number) => ({
+                  name: s.name,
+                  latitude: parseFloat(s.latitude),
+                  longitude: parseFloat(s.longitude),
+                  order: s.order ?? index + 1,
+                })),
+              },
+            }
+          : {}),
+      },
+      include: { stops: true },
     });
     res.status(201).json(route);
   } catch (error) {
+    console.error("Create route error:", error);
     res.status(500).json({ error: "Failed to create route." });
   }
 };
@@ -174,5 +192,21 @@ export const deleteDriver = async (req: Request, res: Response) => {
     res.json({ message: "Driver deleted." });
   } catch (error) {
     res.status(500).json({ error: "Failed to delete driver." });
+  }
+};
+
+export const updateDriver = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const { fullName, phone, licenseNumber, busId } = req.body;
+    const driver = await prisma.user.update({
+      where: { id },
+      data: { fullName, phone, licenseNumber, busId: busId || null },
+    });
+    const { password, ...safeDriver } = driver;
+    res.json(safeDriver);
+  } catch (error) {
+    console.error("Update driver error:", error);
+    res.status(500).json({ error: "Failed to update driver." });
   }
 };
