@@ -7,6 +7,7 @@ import {
   getDrivers, createDriver, deleteDriver, updateDriver,
   createNotification, getNotifications, deleteNotification,
   getMyFavorites, addFavorite, removeFavorite,
+  getAllUsers, deleteUser, getAllTrips,
 } from "../controllers/managementController";
 
 const router = Router();
@@ -45,5 +46,12 @@ router.delete("/notifications/:id", authenticate, authorize("ADMIN"), deleteNoti
 router.get("/favorites", authenticate, getMyFavorites);
 router.post("/favorites", authenticate, addFavorite);
 router.delete("/favorites/:routeId", authenticate, removeFavorite);
+
+// Users (admin overview)
+router.get("/users", authenticate, authorize("ADMIN"), getAllUsers);
+router.delete("/users/:id", authenticate, authorize("ADMIN"), deleteUser);
+
+// All trips (admin overview, for reports)
+router.get("/trips-all", authenticate, authorize("ADMIN"), getAllTrips);
 
 export default router;

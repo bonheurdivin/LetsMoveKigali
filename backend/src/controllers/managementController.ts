@@ -350,3 +350,44 @@ export const removeFavorite = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ error: "Failed to remove favorite." });
   }
 };
+
+// ===== USERS (all roles, for admin overview) =====
+
+export const getAllUsers = async (req: Request, res: Response) => {
+  try {
+    const { role } = req.query;
+    const users = await prisma.user.findMany({
+      where: role ? { role: role as any } : undefined,
+      orderBy: { createdAt: "desc" },
+    });
+    const safeUsers = users.map(({ password, ...rest }) => rest);
+    res.json(safeUsers);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch users." });
+  }
+};
+
+export const deleteUser = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    await prisma.user.delete({ where: { id } });
+    res.json({ message: "User deleted." });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete user." });
+  }
+};
+
+// ===== ALL TRIPS (admin overview, for reports) =====
+
+export const getAllTrips = async (req: Request, res: Response) => {
+  try {
+    const trips = await prisma.trip.findMany({
+      include: { route: true, bus: true, driver: true },
+      orderBy: { createdAt: "desc" },
+      take: 100,
+    });
+    res.json(trips);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch trips." });
+  }
+};
