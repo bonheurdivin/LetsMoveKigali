@@ -147,6 +147,18 @@ export const createStop = async (req: Request, res: Response) => {
   }
 };
 
+export const getAllStops = async (req: Request, res: Response) => {
+  try {
+    const stops = await prisma.stop.findMany({
+      include: { route: true },
+      orderBy: [{ routeId: "asc" }, { order: "asc" }],
+    });
+    res.json(stops);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch stops." });
+  }
+};
+
 export const getStopsByRoute = async (req: Request, res: Response) => {
   try {
     const routeId = req.params.routeId as string;
@@ -157,6 +169,27 @@ export const getStopsByRoute = async (req: Request, res: Response) => {
     res.json(stops);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch stops." });
+  }
+};
+
+export const updateStop = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const { name, latitude, longitude, order, routeId } = req.body;
+    const stop = await prisma.stop.update({
+      where: { id },
+      data: {
+        name,
+        latitude: latitude ? parseFloat(latitude) : undefined,
+        longitude: longitude ? parseFloat(longitude) : undefined,
+        order: order ? parseInt(order, 10) : undefined,
+        routeId,
+      },
+    });
+    res.json(stop);
+  } catch (error) {
+    console.error("Update stop error:", error);
+    res.status(500).json({ error: "Failed to update stop." });
   }
 };
 
