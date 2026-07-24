@@ -66,6 +66,10 @@ model Route {
   name        String
   startPoint  String
   endPoint    String
+  startLatitude   Float?
+  startLongitude  Float?
+  endLatitude     Float?
+  endLongitude    Float?
   createdAt   DateTime @default(now())
 
   stops       Stop[]

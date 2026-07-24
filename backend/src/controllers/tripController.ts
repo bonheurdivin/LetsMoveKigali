@@ -65,3 +65,18 @@ export const getTripLocation = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ error: "Failed to fetch trip location." });
   }
 };
+
+// Get the logged-in driver's own trip history
+export const getMyTrips = async (req: AuthRequest, res: Response) => {
+  try {
+    const trips = await prisma.trip.findMany({
+      where: { driverId: req.userId },
+      include: { route: true, bus: true },
+      orderBy: { createdAt: "desc" },
+      take: 30,
+    });
+    res.json(trips);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch trip history." });
+  }
+};

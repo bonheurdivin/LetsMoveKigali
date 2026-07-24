@@ -49,12 +49,16 @@ export const deleteBus = async (req: Request, res: Response) => {
 
 export const createRoute = async (req: Request, res: Response) => {
   try {
-    const { name, startPoint, endPoint, stops } = req.body;
+    const { name, startPoint, endPoint, startLatitude, startLongitude, endLatitude, endLongitude, stops } = req.body;
     const route = await prisma.route.create({
       data: {
         name,
         startPoint,
         endPoint,
+        startLatitude: startLatitude ? parseFloat(startLatitude) : null,
+        startLongitude: startLongitude ? parseFloat(startLongitude) : null,
+        endLatitude: endLatitude ? parseFloat(endLatitude) : null,
+        endLongitude: endLongitude ? parseFloat(endLongitude) : null,
         ...(stops && stops.length > 0
           ? {
               stops: {
@@ -91,9 +95,23 @@ export const getRoutes = async (req: Request, res: Response) => {
 export const updateRoute = async (req: Request, res: Response) => {
   try {
     const id = req.params.id as string;
-    const route = await prisma.route.update({ where: { id }, data: req.body });
+    const { name, startPoint, endPoint, startLatitude, startLongitude, endLatitude, endLongitude } = req.body;
+
+    const route = await prisma.route.update({
+      where: { id },
+      data: {
+        name,
+        startPoint,
+        endPoint,
+        startLatitude: startLatitude ? parseFloat(startLatitude) : null,
+        startLongitude: startLongitude ? parseFloat(startLongitude) : null,
+        endLatitude: endLatitude ? parseFloat(endLatitude) : null,
+        endLongitude: endLongitude ? parseFloat(endLongitude) : null,
+      },
+    });
     res.json(route);
   } catch (error) {
+    console.error("Update route error:", error);
     res.status(500).json({ error: "Failed to update route." });
   }
 };
