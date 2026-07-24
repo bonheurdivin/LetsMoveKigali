@@ -7,7 +7,9 @@ const navItems = [
   { label: "Dashboard", href: "/dashboard" },
   { label: "Buses", href: "/buses" },
   { label: "Routes", href: "/routes" },
+  { label: "Stops", href: "/stops" },
   { label: "Drivers", href: "/drivers" },
+  { label: "Alerts", href: "/alerts" },
 ];
 
 export default function Sidebar() {

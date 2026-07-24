@@ -13,7 +13,7 @@ export default function RoutesPage() {
   const [viewingRoute, setViewingRoute] = useState<any>(null);
   const [expandedStopsFor, setExpandedStopsFor] = useState<string | null>(null);
   const [newStop, setNewStop] = useState({ name: "", latitude: "", longitude: "" });
-  const [form, setForm] = useState({ name: "", startPoint: "", endPoint: "" });
+  const [form, setForm] = useState({ name: "", startPoint: "", endPoint: "", startLatitude: "", startLongitude: "", endLatitude: "", endLongitude: "" });
   const [stopDrafts, setStopDrafts] = useState<{ name: string; latitude: string; longitude: string }[]>([]);
   const [token, setToken] = useState("");
 
@@ -41,7 +41,7 @@ export default function RoutesPage() {
   };
 
   const resetForm = () => {
-    setForm({ name: "", startPoint: "", endPoint: "" });
+    setForm({ name: "", startPoint: "", endPoint: "", startLatitude: "", startLongitude: "", endLatitude: "", endLongitude: "" });
     setStopDrafts([]);
     setEditingId(null);
     setShowForm(false);
@@ -84,7 +84,15 @@ export default function RoutesPage() {
   };
 
   const handleEdit = (route: any) => {
-    setForm({ name: route.name, startPoint: route.startPoint, endPoint: route.endPoint });
+    setForm({
+      name: route.name,
+      startPoint: route.startPoint,
+      endPoint: route.endPoint,
+      startLatitude: route.startLatitude?.toString() || "",
+      startLongitude: route.startLongitude?.toString() || "",
+      endLatitude: route.endLatitude?.toString() || "",
+      endLongitude: route.endLongitude?.toString() || "",
+    });
     setEditingId(route.id);
     setShowForm(true);
   };
@@ -172,6 +180,30 @@ export default function RoutesPage() {
               placeholder="End Point"
               value={form.endPoint}
               onChange={(e) => setForm({ ...form, endPoint: e.target.value })}
+              className="border border-gray-300 rounded-lg p-2"
+            />
+            <input
+              placeholder="Start Latitude (optional)"
+              value={form.startLatitude}
+              onChange={(e) => setForm({ ...form, startLatitude: e.target.value })}
+              className="border border-gray-300 rounded-lg p-2"
+            />
+            <input
+              placeholder="Start Longitude (optional)"
+              value={form.startLongitude}
+              onChange={(e) => setForm({ ...form, startLongitude: e.target.value })}
+              className="border border-gray-300 rounded-lg p-2"
+            />
+            <input
+              placeholder="End Latitude (optional)"
+              value={form.endLatitude}
+              onChange={(e) => setForm({ ...form, endLatitude: e.target.value })}
+              className="border border-gray-300 rounded-lg p-2"
+            />
+            <input
+              placeholder="End Longitude (optional)"
+              value={form.endLongitude}
+              onChange={(e) => setForm({ ...form, endLongitude: e.target.value })}
               className="border border-gray-300 rounded-lg p-2"
             />
           </div>
